@@ -41,6 +41,7 @@
 
 //	set game directory (normal $(datadir)/s25rttr/S2)
 //#define GAMEDIR DATADIR"/S2"
+#cmakedefine GAMEDIR "${GAMEDIR}"
 
 //	set driver directory (normal $(libdir)/driver)
 //#define DRIVERDIR LIBDIR"/driver"

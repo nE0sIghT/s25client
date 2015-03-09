@@ -34,9 +34,9 @@ IF (SDL_FOUND)
         ADD_CUSTOM_COMMAND(TARGET audioSDL POST_BUILD COMMAND ln -fvs SDL/src/${SL_PREFIX}audioSDL${CMAKE_SHARED_LIBRARY_SUFFIX} ../../audioSDL${CMAKE_SHARED_LIBRARY_SUFFIX})
 
         INSTALL(TARGETS audioSDL 
-            RUNTIME DESTINATION ${LIBDIR}/driver/audio 
-            LIBRARY DESTINATION ${LIBDIR}/driver/audio
-            ARCHIVE DESTINATION ${LIBDIR}/driver/audio
+            RUNTIME DESTINATION ${LIBDIR}
+            LIBRARY DESTINATION ${LIBDIR}
+            ARCHIVE DESTINATION ${LIBDIR}
         )
     ELSE (SDLMIXER_FOUND)
         MESSAGE(WARNING ": SDL_mixer library not found: Not building SDL audiodriver")

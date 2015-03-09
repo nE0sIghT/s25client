@@ -2,7 +2,7 @@
 ### $Id: CMakeLists.txt 6458 2010-05-31 11:38:51Z FloSoft $
 #################################################################################
 
-IF ("${COMPILEFOR}/${COMPILEARCH}" STREQUAL "linux/i386" )
+IF ("${COMPILEFOR}" STREQUAL "linux")
 	FIND_LIBRARY(GLFW_LIBRARY glfw) 
 	
 	IF (GLFW_LIBRARY)
@@ -21,6 +21,6 @@ IF ("${COMPILEFOR}/${COMPILEARCH}" STREQUAL "linux/i386" )
 	ELSE (GLFW_LIBRARY)
 		MESSAGE(WARNING ": GLFW library not found: Not building GLFW videodriver")
 	ENDIF (GLFW_LIBRARY)
-ENDIF ("${COMPILEFOR}/${COMPILEARCH}" STREQUAL "linux/i386" )
+ENDIF ("${COMPILEFOR}" STREQUAL "linux")
 
 #################################################################################

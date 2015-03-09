@@ -19,11 +19,18 @@ INCLUDE(CMakeMacroEnsureOutOfSourceBuild)
 
 ################################################################################
 
-INCLUDE(cmake/crosscompile.cmake)
-
 PROJECT(s25client)
 
 ################################################################################
+
+# options
+OPTION(BUILD_GLFW_DRIVER "Build the GLFW video driver" 0)
+OPTION(BUILD_SDL_DRIVER "Build the sdl video driver" 1)
+IF (UNIX)
+       IF (NOT BUILD_SDL_DRIVER AND NOT BUILD_GLFW_DRIVER)
+               MESSAGE(FATAL_ERROR "No video driver selected! Either use SDL or GLFW.")
+       ENDIF (NOT BUILD_SDL_DRIVER AND NOT BUILD_GLFW_DRIVER)
+ENDIF (UNIX)
 
 SET(PREFIX ${PREFIX} CACHE STRING "Path prefix")
 SET(BINDIR ${BINDIR} CACHE STRING "Directory for the binaries")
@@ -106,38 +113,6 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/build_paths.h.cmake"
 			   build_paths.h)
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/build_version.h.cmake"
 			   build_version.h)
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/build/preinstall.sh.cmake"
-			   preinstall.sh @ONLY)
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/build/postinstall.sh.cmake"
-			   postinstall.sh @ONLY)
-
-################################################################################
-
-ADD_SUBDIRECTORY(version)
-
-ADD_CUSTOM_TARGET(updateversion ALL
-				  COMMAND "${CMAKE_BINARY_DIR}/version/src/version" "${CMAKE_SOURCE_DIR}"
-				  DEPENDS version
-				  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-ADD_CUSTOM_TARGET(mrproper
-				  COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/build/cleanup.sh"
-				  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-)
-
-ADD_CUSTOM_TARGET(create_nightly
-				  COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/release/create_release.sh" "nightly" "${CMAKE_SOURCE_DIR}"
-				  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-ADD_CUSTOM_TARGET(create_stable
-				  COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/release/create_release.sh" "stable" "${CMAKE_SOURCE_DIR}"
-				  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-# preinstall script
-INSTALL(SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/preinstall.cmake")
 
 ################################################################################
 
@@ -148,7 +123,6 @@ ADD_SUBDIRECTORY(libsiedler2)
 ADD_SUBDIRECTORY(libutil)
 ADD_SUBDIRECTORY(liblobby)
 ADD_SUBDIRECTORY(s-c)
-ADD_SUBDIRECTORY(s25update)
 ADD_SUBDIRECTORY(src)
 
 ################################################################################
@@ -157,7 +131,6 @@ ADD_SUBDIRECTORY(src)
 INSTALL(CODE "INCLUDE(driver/cmake_install.cmake)")
 INSTALL(CODE "INCLUDE(libsiedler2/cmake_install.cmake)")
 INSTALL(CODE "INCLUDE(s-c/cmake_install.cmake)")
-INSTALL(CODE "INCLUDE(s25update/cmake_install.cmake)")
 INSTALL(CODE "INCLUDE(src/cmake_install.cmake)")
 
 # and then dont let him install anything
