@@ -139,11 +139,9 @@ IF ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 ENDIF ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 
 IF ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-	IF ( "${PLATFORM_ARCH}" STREQUAL "i386" )
-		SET(LUA_DIR "${CMAKE_SOURCE_DIR}/contrib/lua/lin32")
-	ELSE()
-		SET(LUA_DIR "${CMAKE_SOURCE_DIR}/contrib/lua/lin64")
-	ENDIF()
+	SET(LUA_DIR "/usr")
+	SET(LUA_LIB "${LUA_DIR}/lib/liblua${LUA_VERSION}.so")
+	INCLUDE_DIRECTORIES("${LUA_DIR}/include/lua${LUA_VERSION}")
 ENDIF ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 
 ### XXX Add FindLua52
