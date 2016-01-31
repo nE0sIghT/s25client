@@ -49,9 +49,9 @@ IF (SDL_FOUND)
         ENDIF()
 
         INSTALL(TARGETS audioSDL 
-            RUNTIME DESTINATION ${RTTR_DRIVERDIR}/audio 
-            LIBRARY DESTINATION ${RTTR_DRIVERDIR}/audio
-            ARCHIVE DESTINATION ${RTTR_DRIVERDIR}/audio
+            RUNTIME DESTINATION ${RTTR_LIBDIR}
+            LIBRARY DESTINATION ${RTTR_LIBDIR}
+            ARCHIVE DESTINATION ${RTTR_LIBDIR}
         )
     ELSE (SDLMIXER_FOUND)
         MESSAGE(WARNING ": SDL_mixer library not found: Not building SDL audiodriver")

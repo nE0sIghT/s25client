@@ -144,6 +144,15 @@ ENDIF ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 
 ################################################################################
 
+# options
+OPTION(BUILD_GLFW_DRIVER "Build the GLFW video driver" 0)
+OPTION(BUILD_SDL_DRIVER "Build the sdl video driver" 1)
+IF (UNIX)
+       IF (NOT BUILD_SDL_DRIVER AND NOT BUILD_GLFW_DRIVER)
+               MESSAGE(FATAL_ERROR "No video driver selected! Either use SDL or GLFW.")
+       ENDIF (NOT BUILD_SDL_DRIVER AND NOT BUILD_GLFW_DRIVER)
+ENDIF (UNIX)
+
 IF ("${RTTR_PREFIX}" STREQUAL "")
     IF ("${CMAKE_INSTALL_PREFIX}" STREQUAL "")
         SET(RTTR_PREFIX .)
@@ -248,10 +257,6 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/build_version.h.cmake"
 			   build_version.h)
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/build_version_defines.h.cmake"
 			   build_version_defines.h)
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/build/preinstall.sh.cmake"
-			   preinstall.sh @ONLY)
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/build/postinstall.sh.cmake"
-			   postinstall.sh @ONLY)
 
 ################################################################################
 # Create symlinks
@@ -283,36 +288,6 @@ ENDIF()
 
 ################################################################################
 
-ADD_SUBDIRECTORY(version)
-
-ADD_CUSTOM_TARGET(updateversion ALL
-				  COMMAND "$<TARGET_FILE:version>" "${CMAKE_SOURCE_DIR}"
-				  DEPENDS version
-				  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-	
-IF(NOT ${CMAKE_HOST_SYSTEM_NAME} MATCHES "Windows")
-	ADD_CUSTOM_TARGET(mrproper
-					  COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/build/cleanup.sh"
-					  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-	)
-
-	ADD_CUSTOM_TARGET(create_nightly
-					  COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/release/create_release.sh" "nightly" "${CMAKE_SOURCE_DIR}"
-					  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-	)
-
-	ADD_CUSTOM_TARGET(create_stable
-					  COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/release/create_release.sh" "stable" "${CMAKE_SOURCE_DIR}"
-					  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-	)
-
-	# preinstall script
-	INSTALL(SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/preinstall.cmake")
-ENDIF()
-
-################################################################################
-
 ADD_SUBDIRECTORY(driver)
 ADD_SUBDIRECTORY(libendian)
 ADD_SUBDIRECTORY(mygettext)
@@ -320,7 +295,6 @@ ADD_SUBDIRECTORY(libsiedler2)
 ADD_SUBDIRECTORY(libutil)
 ADD_SUBDIRECTORY(liblobby)
 ADD_SUBDIRECTORY(s-c)
-ADD_SUBDIRECTORY(s25update)
 ADD_SUBDIRECTORY(src)
 
 ################################################################################
@@ -329,7 +303,6 @@ ADD_SUBDIRECTORY(src)
 INSTALL(CODE "INCLUDE(driver/cmake_install.cmake)")
 INSTALL(CODE "INCLUDE(libsiedler2/cmake_install.cmake)")
 INSTALL(CODE "INCLUDE(s-c/cmake_install.cmake)")
-INSTALL(CODE "INCLUDE(s25update/cmake_install.cmake)")
 INSTALL(CODE "INCLUDE(src/cmake_install.cmake)")
 
 # and then dont let him install anything
