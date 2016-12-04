@@ -162,6 +162,17 @@ ENDIF()
 UNSET(TMP_BOOST_VERSION)
 
 ################################################################################
+# Drivers options
+
+OPTION(BUILD_GLFW_DRIVER "Build the GLFW video driver" 0)
+OPTION(BUILD_SDL_DRIVER "Build the sdl video driver" 1)
+IF (UNIX)
+       IF (NOT BUILD_SDL_DRIVER AND NOT BUILD_GLFW_DRIVER)
+               MESSAGE(FATAL_ERROR "No video driver selected! Either use SDL or GLFW.")
+       ENDIF (NOT BUILD_SDL_DRIVER AND NOT BUILD_GLFW_DRIVER)
+ENDIF (UNIX)
+
+################################################################################
 # Set paths
 # All paths are relative to the install-prefix.
 # Example: BINDIR="bin", DATADIR="data" executed in "/foo/bar/bin/rttr.exe" -> FULL_DATADIR=/foo/bar/data
@@ -201,7 +212,7 @@ ELSE()
 	SET(RTTR_DRIVERDIR "${DEFAULT_DRIVERDIR}" CACHE STRING "Directory for driver objects")
 ENDIF()
 # Ensure relative paths
-foreach(curDirVar RTTR_BINDIR RTTR_DATADIR RTTR_GAMEDIR RTTR_LIBDIR RTTR_DOCDIR RTTR_DRIVERDIR)
+foreach(curDirVar RTTR_BINDIR RTTR_DATADIR RTTR_LIBDIR RTTR_DOCDIR RTTR_DRIVERDIR)
 	if(IS_ABSOLUTE ${${curDirVar}})
 		message(FATAL_ERROR "All RTTR_*DIR variables must be relative paths. ${curDirVar} is absolute: ${${curDirVar}}")
 	endif()
@@ -333,22 +344,12 @@ MACRO(symlinkFolder dst symLinkPath)
 	ENDIF()
 ENDMACRO(symlinkFolder)
 
-IF(NOT ${CMAKE_HOST_SYSTEM_NAME} MATCHES "Windows")
-	file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${RTTR_DATADIR}")
-	symlinkFolder("${CMAKE_SOURCE_DIR}/RTTR" "${CMAKE_BINARY_DIR}/${RTTR_DATADIR}/RTTR")
-	file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${RTTR_LIBDIR}/RTTR")
-	if(NOT EXISTS "${CMAKE_SOURCE_DIR}/S2")
-		file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/S2")
-	endif()
-	symlinkFolder("${CMAKE_SOURCE_DIR}/S2" "${CMAKE_BINARY_DIR}/${RTTR_GAMEDIR}")
-ELSE()
-	message(STATUS "Host system is ${CMAKE_HOST_SYSTEM_NAME}. Will use copies instead of symlinks")
-	file(COPY "${CMAKE_SOURCE_DIR}/RTTR" DESTINATION "${CMAKE_BINARY_DIR}"
-		 PATTERN "*.po" EXCLUDE
-		 PATTERN "*.pot" EXCLUDE
-		 PATTERN ".*" EXCLUDE
-	)
-ENDIF()
+message(STATUS "Host system is ${CMAKE_HOST_SYSTEM_NAME}. Will use copies instead of symlinks")
+file(COPY "${CMAKE_SOURCE_DIR}/RTTR" DESTINATION "${CMAKE_BINARY_DIR}"
+	 PATTERN "*.po" EXCLUDE
+	 PATTERN "*.pot" EXCLUDE
+	 PATTERN ".*" EXCLUDE
+)
 
 ################################################################################
 # Configure files
@@ -382,17 +383,6 @@ INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
 enable_testing()
 
 ################################################################################
-# Add version generater first
-
-ADD_SUBDIRECTORY(version)
-
-ADD_CUSTOM_TARGET(updateversion ALL
-				  COMMAND "$<TARGET_FILE:version>" "${CMAKE_SOURCE_DIR}"
-				  DEPENDS version
-				  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-	
-################################################################################
 # Then add all other dependencies
 
 ADD_SUBDIRECTORY(driver)
@@ -404,7 +394,6 @@ ADD_SUBDIRECTORY(libutil)
 SET(LOBBY_C TRUE)
 ADD_SUBDIRECTORY(liblobby)
 ADD_SUBDIRECTORY(s-c)
-ADD_SUBDIRECTORY(s25update)
 ADD_SUBDIRECTORY(src)
 
 ################################################################################
