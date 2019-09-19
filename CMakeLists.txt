@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.8)
 
 project(s25client)
 
-if(NOT MSVC)
+option(PACKAGE_MODE "Build for packaging in distros" OFF)
+option(USE_SDL "Use sdl 1.2 drivers" ON)
+option(USE_SDL2 "Use sdl 2 drivers" ON)
+
+if(NOT MSVC AND NOT PACKAGE_MODE)
     #Check for ccache
     if(APPLE)
         find_program(CCACHE_PROGRAM NAMES ccache-lipo ccache)
@@ -30,13 +34,15 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules" "${CMAKE_SOURCE_DIR}/external/libutil/cmake")
 
-include(CheckGitSubmodules)
-check_git_submodules()
+if(NOT PACKAGE_MODE)
+    include(CheckGitSubmodules)
+    check_git_submodules()
+endif()
 
 # Figure out RTTR_REVISION (git hash) and RTTR_VERSION (date)
 # Those can be manually set to override the default values
 # By default those are non-Cache variables which regenerates them on every configure run
-if(NOT RTTR_REVISION)
+if(NOT RTTR_REVISION AND NOT PACKAGE_MODE)
     include(GetGitRevisionDescription)
     # Get git commit hash. Note: CMake will reconfigure if the git hash changes
     get_git_head_revision(RTTR_GIT_REF RTTR_REVISION)
